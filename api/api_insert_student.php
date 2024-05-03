@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $course = $_POST['course'];
 
 
-    $res = $config->insert($name, $age, $course);
+    $res = $config->insertStudent($name, $age, $course);
 
     if ($res) {
         $arr['data'] = "Data inserted Successfully...";

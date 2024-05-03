@@ -6,6 +6,9 @@ class Config
     private $PASSWORD = "";
     private $DB_NAME = "rnw";
 
+    private $STUDENT_TABLE = "students";
+    private $USER_TABLE = "user";
+
     public $conn;
 
 
@@ -15,10 +18,10 @@ class Config
         return $this->conn;
     }
 
-    public function insert($name, $age, $course)
+    public function insertStudent($name, $age, $course)
     {
         $this->connect();
-        $query = "INSERT INTO students(name,age,course) values('$name', $age, '$course');";
+        $query = "INSERT INTO $this->STUDENT_TABLE(name,age,course) values('$name', $age, '$course');";
 
         // mysqli_query(connection,query);
         $res = mysqli_query($this->conn, $query);//  return bool;
@@ -26,47 +29,73 @@ class Config
         return $res;
     }
 
-    public function fetch_students_data()
+    public function fetchStudentsData()
     {
         $this->connect();
 
-        $query = "SELECT * FROM students;";
+        $query = "SELECT * FROM $this->STUDENT_TABLE;";
 
         $res = mysqli_query($this->conn, $query); // return obj to mysqli_result class
 
         return $res;
     }
 
-    public function delete($id)
+    public function deleteStudent($id)
     {
         $this->connect();
+        $fetch = $this->fetchSingleStudentData($id);
+        $result = mysqli_fetch_assoc($fetch);
 
-        $query = "DELETE FROM students WHERE id=$id";
+        if ($result) {
+            $query = "DELETE FROM $this->STUDENT_TABLE WHERE id=$id";
 
-        $res = mysqli_query($this->conn, $query); // return true or number of deleted record 1
+            $res = mysqli_query($this->conn, $query); // return true or number of deleted record 1
 
-        return $res;
+            return $res;
+        } else {
+            return false;
+        }
     }
 
-    public function fetch_single_student_data($id)
+    public function fetchSingleStudentData($id)
     {
         $this->connect();
 
-        $query = "SELECT * FROM students WHERE id=$id;";
+        $query = "SELECT * FROM $this->STUDENT_TABLE WHERE id=$id;";
 
         $res = mysqli_query($this->conn, $query); // return obj to mysqli_result class
 
         return $res;
     }
 
-    public function update($name, $age, $course, $id)
+    public function updateStudent($name, $age, $course, $id)
     {
         $this->connect();
-        $query = "UPDATE students SET name='$name',age=$age,course = '$course' WHERE id=$id;";
 
-        $res = mysqli_query($this->conn, $query);//  return bool;
+        $fetch = $this->fetchSingleStudentData($id);
+        $result = mysqli_fetch_assoc($fetch);
 
-        return $res;
+        if ($result) {
+            $query = "UPDATE $this->STUDENT_TABLE SET name='$name',age=$age,course = '$course' WHERE id=$id;";
+
+            $res = mysqli_query($this->conn, $query);//  return bool;
+
+            return $res;
+        } else {
+            return false;
+        }
+    }
+
+
+    public function signUpUser($name, $email, $password)
+    {
+        $this->connect();
+
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        $query = "INSERT INTO $this->USER_TABLE(name,email,password) values('$name','$email', '$hashed_password');";
+
+        return mysqli_query($this->conn, $query);
     }
 }
 ?>
